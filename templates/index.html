@@ -1,0 +1,45 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trace - News Explorer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>trace</h1>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+            <form action="#" method="GET">
+                <input type="text" name="query" placeholder="Enter article URL..." class="search-bar">
+            </form>
+        </div>
+
+        <!-- Main Article Display -->
+        <div class="article-container">
+            <div class="navigation">
+                <button class="back-button">←</button>
+                <div class="view-options">
+                    <button class="view-tree">see tree</button>
+                    <button class="view-story">story</button>
+                </div>
+            </div>
+
+            <div class="article-content">
+                <h2>{{ article.title }}</h2>
+                <p class="article-url">{{ article.url }}</p>
+            </div>
+
+            <!-- Source Buttons -->
+            <div class="sources">
+                {% for source in article.sources %}
+                    <button class="source-button">{{ source }}</button>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
