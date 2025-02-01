@@ -13,8 +13,8 @@
 
         <!-- Search Bar -->
         <div class="search-container">
-            <form action="#" method="GET">
-                <input type="text" name="query" placeholder="Enter article URL..." class="search-bar">
+            <form id="searchForm" onsubmit="return false;">
+                <input type="text" name="query" id="searchInput" placeholder="Enter article URL..." class="search-bar">
             </form>
         </div>
 
@@ -29,17 +29,18 @@
             </div>
 
             <div class="article-content">
-                <h2>{{ article.title }}</h2>
-                <p class="article-url">{{ article.url }}</p>
+                <h2 id="articleTitle">{{ article.title }}</h2>
+                <p id="articleUrl" class="article-url">{{ article.url }}</p>
             </div>
 
             <!-- Source Buttons -->
-            <div class="sources">
+            <div id="sourcesContainer" class="sources">
                 {% for source in article.sources %}
                     <button class="source-button">{{ source }}</button>
                 {% endfor %}
             </div>
         </div>
     </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
