@@ -103,7 +103,7 @@ class Claude:
         text = message.content[0].text
         print(text)
         summary, hypotheses = text.split("!!!")
-        #hypotheses = ast.literal_eval(hypotheses.strip())
+        hypotheses = ast.literal_eval(hypotheses.strip())
         return summary, hypotheses
 
 
