@@ -4,7 +4,19 @@
     <title>Article View</title>
     <style>
         body, html { margin: 0; height: 100%; }
-        iframe { width: 100%; height: 100%; border: none; }
+        iframe { width: 50%; height: 50%; border: none; }
+        .terminal-window {
+            width: 50%;
+            height: 300px;
+            background-color: #000;
+            color: #0f0;
+            font-family: monospace;
+            padding: 10px;
+            overflow-y: scroll;
+            border: 1px solid #333;
+            margin-top: 20px;
+            white-space: pre-wrap;
+        }
     </style>
 </head>
 <body>
@@ -13,5 +25,32 @@
             class="preview-iframe"
             sandbox="allow-same-origin allow-scripts">
     </iframe>
+    <div id="terminal" class="terminal-window"></div>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script>
+        const socket = io.connect();
+
+        socket.on('connect', function() {
+            console.log('Connected to server');
+        });
+
+        socket.on('processing_article', function(data) {
+            appendToTerminal(`Processing article: ${data.url}`);
+        });
+
+        socket.on('Analysed Article: ', function(data) {
+            appendToTerminal(`Analysed Article: ${data}`);
+        });
+
+        socket.on('processing_complete', function(data) {
+            appendToTerminal(data.message);
+        });
+
+        function appendToTerminal(message) {
+            const terminal = document.getElementById('terminal');
+            terminal.innerHTML += message + '\n';
+            terminal.scrollTop = terminal.scrollHeight; // Auto-scroll to the bottom
+        }
+    </script>
 </body>
 </html>

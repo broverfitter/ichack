@@ -1,9 +1,19 @@
 from flask import Flask, render_template, request, jsonify
 import requests
+from flask_socketio import SocketIO
 from googlesearch import search
 from functools import lru_cache
+from claude import Claude
+import threading
+from queue import Queue
+
+def run_claude(socketio, url, queue):
+    c = Claude(socketio)
+    root, output = c.main(url)
+    queue.put((root, output))
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 
 def mock_search(query):
     search_results = []
@@ -31,8 +41,11 @@ def search_view():
 @app.route('/click')
 def click_view():
     url = request.args.get('url')
+    queue = Queue()
+    thread = threading.Thread(target=run_claude, args=(socketio, url, queue))
+    thread.start()
+    thread.join()  # Wait for the thread to finish
+    root, output = queue.get()  # Get the result from the queue
     return render_template("click/index.html", url=url)
-    
 
-if __name__ == '__main__':
-    app.run(debug=True)
+
