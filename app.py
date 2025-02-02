@@ -5,12 +5,13 @@ from googlesearch import search
 from functools import lru_cache
 from claude import Claude
 import threading
-from queue import Queue
 
-def run_claude(socketio, url, queue):
+def run_claude(socketio, url):
     c = Claude(socketio)
-    root, output = c.main(url)
-    queue.put((root, output))
+    root,output = c.main(url)
+
+
+
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -41,11 +42,7 @@ def search_view():
 @app.route('/click')
 def click_view():
     url = request.args.get('url')
-    queue = Queue()
-    thread = threading.Thread(target=run_claude, args=(socketio, url, queue))
-    thread.start()
-    thread.join()  # Wait for the thread to finish
-    root, output = queue.get()  # Get the result from the queue
+    threading.Thread(target=run_claude, args=(socketio, url)).start()
     return render_template("click/index.html", url=url)
 
 

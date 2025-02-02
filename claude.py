@@ -4,12 +4,11 @@ from bs4 import BeautifulSoup
 import io
 import logging
 import PyPDF2
-import json
-from anytree.exporter import JsonExporter
 import ast
 from anytree import Node
 from googlesearch import search
 from firecrawl import FirecrawlApp
+
 from scrape import crawl
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
@@ -24,10 +23,9 @@ class MockSocketIO:
         print(f"Emitting event '{event}' with data: {data}")
 
 class Claude:
-    def __init__(self):
+    def __init__(self, socketio):
         self.articles = []
-        self.root = None
-        self.socketio = MockSocketIO()
+        self.socketio = socketio
         self.anthropic = Anthropic(
             api_key="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"
         )
@@ -36,22 +34,6 @@ class Claude:
     def url_to_info_pls(self, url):
         print(url)
         return self.crawl.crawl_url(url)
-
-    def initialize_json(self, url, filename='root_data.json'):
-        self.root = Node(url)
-        self.save_root_to_json(filename)
-
-    def add_child_to_root(self, child_url, filename='root_data.json'):
-        if self.root is None:
-            raise ValueError("Root is not initialized. Call initialize_json first.")
-
-        Node(child_url, parent=self.root)
-        self.save_root_to_json(filename)
-
-    def save_root_to_json(self, filename):
-        with open(filename, 'w') as f:
-            json_data = treetojson.get_json(self.root)
-            f.write(json_data)
 
     def url_to_info(self, url):
         try:
@@ -169,16 +151,13 @@ class Claude:
 
         for i in range(len(top3)):
             self.recurse(Node(top3[i], parent=parent), top3[i][0], depth + 1)
-            self.add_child_to_root(Node(top3[i], parent=parent))
-
 
     def main(self, url):
-        self.root = Node(url)
-        self.initialize_json(url)
-        self.recurse(self.root, url, 0)
-        output = self.link_articles(self.root,self.articles)
+        root = Node(url)
+        self.recurse(root, url, 0)
+        output = self.link_articles(root,self.articles)
         print(output)
-        return self.root, output
+        return root, output
 
     def link_articles(self, root, articles):
         root_content = self.url_to_info(root.name)
@@ -218,5 +197,5 @@ class Claude:
 
         return message.content[0].text
 
-c = Claude()
-c.main('https://arxiv.org/abs/1706.03762')
+# c = Claude()
+# c.main('https://arxiv.org/abs/1706.03762')
