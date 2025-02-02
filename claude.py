@@ -101,7 +101,6 @@ class Claude:
         )
 
         text = message.content[0].text
-        self.socketio.emit('Analysed Article: ', text)
         print(text)
         summary, hypotheses = text.split("!!!")
         hypotheses = ast.literal_eval(hypotheses.strip())
