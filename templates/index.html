@@ -18,28 +18,8 @@
             </form>
         </div>
 
-        <!-- Main Article Display -->
-        <div class="article-container">
-            <div class="navigation">
-                <button class="back-button">←</button>
-                <div class="view-options">
-                    <button class="view-tree">see tree</button>
-                    <button class="view-story">story</button>
-                </div>
-            </div>
-
-            <div class="article-content">
-                <h2 id="articleTitle">{{ article.title }}</h2>
-                <p id="articleUrl" class="article-url">{{ article.url }}</p>
-            </div>
-
-            <!-- Source Buttons -->
-            <div id="sourcesContainer" class="sources">
-                {% for source in article.sources %}
-                    <button class="source-button">{{ source }}</button>
-                {% endfor %}
-            </div>
-        </div>
+        <!-- Search Results -->
+        <div id="resultsContainer"></div>
     </div>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>

@@ -1,6 +1,7 @@
 // static/script.js
 document.getElementById('searchInput').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
+        e.preventDefault(); // Prevent the default form submission
         const query = this.value;
         searchArticle(query);
     }
@@ -16,18 +17,26 @@ function searchArticle(query) {
     })
     .then(response => response.json())
     .then(data => {
-        // Update the article content
-        document.getElementById('articleTitle').textContent = data.title;
-        document.getElementById('articleUrl').textContent = data.url;
+        // Clear previous results
+        const resultsContainer = document.getElementById('resultsContainer');
+        resultsContainer.innerHTML = '';
 
-        // Update the sources
-        const sourcesContainer = document.getElementById('sourcesContainer');
-        sourcesContainer.innerHTML = '';
-        data.sources.forEach(source => {
-            const button = document.createElement('button');
-            button.className = 'source-button';
-            button.textContent = source;
-            sourcesContainer.appendChild(button);
+        // Display top 5 results
+        data.results.forEach(result => {
+            const articleContainer = document.createElement('div');
+            articleContainer.className = 'article-container';
+
+            const articleContent = `
+                <div class="article-content">
+                    <h2>${result.title}</h2>
+                    <p class="article-url">${result.url}</p>
+                </div>
+                <div class="sources">
+                    ${result.sources.map(source => `<button class="source-button">${source}</button>`).join('')}
+                </div>
+            `;
+            articleContainer.innerHTML = articleContent;
+            resultsContainer.appendChild(articleContainer);
         });
     })
     .catch(error => {

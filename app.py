@@ -1,5 +1,5 @@
-# app.py
 from flask import Flask, render_template, request, jsonify
+from googlesearch import search
 
 app = Flask(__name__)
 
@@ -12,17 +12,27 @@ def home():
     }
     return render_template('index.html', article=sample_article)
 
+def mock_search(query):
+    # Perform a Google search and get the top 5 results
+    search_results = []
+    for url in search(query, num_results= 50):
+        if len(search_results) == 5:
+            break
+        # Check if the URL is like an article
+        if any(keyword in url for keyword in ['article', 'news', 'blog', 'post']):
+            search_results.append({
+                'title': f'Article about {query}',  # Mock title based on the query
+                'url': url,
+                'sources': ['Google']
+            })
+    return search_results
+
 @app.route('/search', methods=['POST'])
-def search():
-    query = request.json.get('query')
-    # This is where you'll implement the actual search logic later
-    # For now, just return a sample response
-    response = {
-        'title': f'Results for: {query}',
-        'url': query,
-        'sources': ['Found Source 1', 'Found Source 2', 'Found Source 3']
-    }
-    return jsonify(response)
+def search_view():
+    data = request.get_json()
+    query = data.get('query')
+    results = mock_search(query)
+    return jsonify({'results': results})
 
 if __name__ == '__main__':
     app.run(debug=True)
