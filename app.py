@@ -13,7 +13,7 @@ def mock_search(query):
 
         else:
             search_results.append({
-                'title': f'url',  # Mock title based on the query
+                'title': url,  # Mock title based on the query
                 'url': url,
                 'sources': ['Google']
             })
@@ -26,9 +26,9 @@ def index():
 @app.route('/search', methods=['POST'])
 def search_view():
     data = request.get_json()
-    print(data)
     query = data.get('query')
     results = mock_search(query)
+    print(results)
     return jsonify({'results': results})
 
 if __name__ == '__main__':

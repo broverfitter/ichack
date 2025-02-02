@@ -25,24 +25,37 @@ function searchArticle(query) {
         resultsContainer.innerHTML = '';
 
         // Display top 5 results as buttons
-        data.results.forEach(result => {
-            const articleButton = document.createElement('button');
+        data.results.forEach((result, index) => {
+            const articleButton = document.createElement('div');
             articleButton.className = 'article-button'
-            articleButton.innerHTML =`<div class='button-text'>${result.title}</div>
-                                      <iframe src="${result.url}" frameborder="0" class="preview-iframe"></iframe>`;
+
+            articleButton.innerHTML = `
+                <div class="button-text">${result.url}</div>
+                <div class="preview-container">
+                    <iframe src="${result.url}" 
+                            frameborder="0" 
+                            class="preview-iframe">
+                    </iframe>
+                </div>
+            `;
+
             articleButton.addEventListener('mouseenter', (e) => {
-                articleButton.querySelector('.preview-iframe').style.display = 'block';
+                const previewIframe = articleButton.querySelector('.preview-iframe');
+                previewIframe.style.display = 'block';
+                previewIframe.style.height = '400px'
                 e.preventDefault();
             });
             articleButton.addEventListener('mouseleave', () => {
-                articleButton.querySelector('.preview-iframe').style.display = 'none';
+                const previewIframe = articleButton.querySelector('.preview-iframe');
+                previewIframe.style.height = '0px';
             });
             articleButton.addEventListener('click', () => {
                 showLoadingMessage(result.url);
                 hidePreview();
             });
-            // articleButton.querySelector('.preview-iframe').style.display = 'none';
+            articleButton.querySelector('.preview-iframe').style.display = 'none';
             resultsContainer.appendChild(articleButton);
+
             setTimeout(() => {
                 articleButton.classList.add('visible');
             }, index * 200);
