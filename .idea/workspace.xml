@@ -89,7 +89,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1738451942184</updated>
-      <workItem from="1738451943227" duration="7052000" />
+      <workItem from="1738451943227" duration="7654000" />
     </task>
     <task id="LOCAL-00001" summary="test">
       <option name="closed" value="true" />
@@ -147,7 +147,23 @@
       <option name="project" value="LOCAL" />
       <updated>1738458587125</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="search previews added">
+      <option name="closed" value="true" />
+      <created>1738459344183</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1738459344183</updated>
+    </task>
+    <task id="LOCAL-00009" summary="search previews added">
+      <option name="closed" value="true" />
+      <created>1738459354901</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1738459354901</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -161,6 +177,6 @@
     <option name="LAST_COMMIT_MESSAGE" value="search previews added" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/ichack$ichack.coverage" NAME="ichack Coverage Results" MODIFIED="1738458437573" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/ichack$ichack.coverage" NAME="ichack Coverage Results" MODIFIED="1738459183177" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
   </component>
 </project>
