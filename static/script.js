@@ -1,4 +1,3 @@
-// static/script.js
 document.getElementById('searchInput').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
         e.preventDefault(); // Prevent the default form submission
@@ -28,6 +27,7 @@ function searchArticle(query) {
             articleButton.innerText = result.title;
             articleButton.addEventListener('click', () => {
                 showLoadingMessage(result.url);
+                hidePreview();
             });
             articleButton.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
@@ -59,4 +59,10 @@ function togglePreview(url, button) {
         previewContainer.style.left = `${rect.left + window.scrollX - previewContainer.offsetWidth}px`;
         previewContainer.dataset.url = url;
     }
+}
+
+function hidePreview() {
+    const previewContainer = document.getElementById('previewContainer');
+    previewContainer.style.display = 'none';
+    previewContainer.innerHTML = '';
 }
