@@ -1,5 +1,21 @@
 from flask import Flask, render_template, request, jsonify
 from googlesearch import search
+import requests
+from bs4 import BeautifulSoup
+
+def get_description(url):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Check if the request was successful
+        soup = BeautifulSoup(response.content, 'html.parser')
+        description = soup.find('meta', attrs={'name': 'description'})
+        if description:
+            return description.get('content')
+        else:
+            return 'No description available'
+    except requests.exceptions.RequestException as e:
+        return f'Error fetching the URL: {e}'
+
 
 app = Flask(__name__)
 
@@ -21,7 +37,7 @@ def mock_search(query):
         # Check if the URL is like an article
         if any(keyword in url for keyword in ['article', 'news', 'blog', 'post']):
             search_results.append({
-                'title': f'Article about {query}',  # Mock title based on the query
+                'title': f'Article about {get_description(url)}',  # Mock title based on the query
                 'url': url,
                 'sources': ['Google']
             })

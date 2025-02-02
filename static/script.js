@@ -21,25 +21,42 @@ function searchArticle(query) {
         const resultsContainer = document.getElementById('resultsContainer');
         resultsContainer.innerHTML = '';
 
-        // Display top 5 results
+        // Display top 5 results as buttons
         data.results.forEach(result => {
-            const articleContainer = document.createElement('div');
-            articleContainer.className = 'article-container';
-
-            const articleContent = `
-                <div class="article-content">
-                    <h2>${result.title}</h2>
-                    <p class="article-url">${result.url}</p>
-                </div>
-                <div class="sources">
-                    ${result.sources.map(source => `<button class="source-button">${source}</button>`).join('')}
-                </div>
-            `;
-            articleContainer.innerHTML = articleContent;
-            resultsContainer.appendChild(articleContainer);
+            const articleButton = document.createElement('button');
+            articleButton.className = 'article-button';
+            articleButton.innerText = result.title;
+            articleButton.addEventListener('click', () => {
+                showLoadingMessage(result.url);
+            });
+            articleButton.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                togglePreview(result.url, articleButton);
+            });
+            resultsContainer.appendChild(articleButton);
         });
     })
     .catch(error => {
         console.error('Error:', error);
     });
+}
+
+function showLoadingMessage(url) {
+    const resultsContainer = document.getElementById('resultsContainer');
+    resultsContainer.innerHTML = `<p>Processing search for: ${url}</p>`;
+}
+
+function togglePreview(url, button) {
+    const previewContainer = document.getElementById('previewContainer');
+    if (previewContainer.style.display === 'block' && previewContainer.dataset.url === url) {
+        previewContainer.style.display = 'none';
+        previewContainer.innerHTML = '';
+    } else {
+        const rect = button.getBoundingClientRect();
+        previewContainer.innerHTML = `<iframe src="${url}" frameborder="0" class="preview-iframe"></iframe>`;
+        previewContainer.style.display = 'block';
+        previewContainer.style.top = `${rect.top + window.scrollY}px`;
+        previewContainer.style.left = `${rect.left + window.scrollX - previewContainer.offsetWidth}px`;
+        previewContainer.dataset.url = url;
+    }
 }

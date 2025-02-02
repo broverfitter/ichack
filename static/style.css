@@ -102,3 +102,36 @@ h1 {
 .source-button:hover {
     background-color: #e0e0e0;
 }
+
+/* static/style.css */
+.article-button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 20px;
+    background-color: #fff;
+    cursor: pointer;
+    text-align: left;
+}
+
+.article-button:hover {
+    background-color: #f0f0f0;
+}
+
+.preview-container {
+    display: none;
+    position: absolute;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.preview-iframe {
+    width: 400px;
+    height: 300px;
+    border: none;
+}
