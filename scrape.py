@@ -2,7 +2,7 @@ from firecrawl import FirecrawlApp
 
 class crawl:
     def __init__(self):
-        self.app = FirecrawlApp(api_key="fc-827d769bc5c14316871971dd813607f3")
+        self.app = FirecrawlApp(api_key="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")
 
     def crawl_url(self, url):
         crawl_status = self.app.crawl_url(
