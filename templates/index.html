@@ -1,4 +1,3 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trace - News Explorer</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
 </head>
 <body>
     <div class="container">
@@ -26,7 +26,31 @@
 
         <!-- Summary Container -->
         <div id="summaryContainer"></div>
+
+        <!-- Processing Articles -->
+        <div id="processingContainer">
+            <h2>Processing Articles:</h2>
+            <ul id="processingArticles"></ul>
+        </div>
     </div>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        var socket = io();
+
+        socket.on('article_searched', function(data) {
+            var li = document.createElement('li');
+            li.textContent = 'Searching article: ' + data.url;
+            li.onclick = function() {
+                socket.emit('process_article', { url: data.url });
+            };
+            document.getElementById('processingArticles').appendChild(li);
+        });
+
+        socket.on('processing_article', function(data) {
+            var li = document.createElement('li');
+            li.textContent = 'Processing article: ' + data.url;
+            document.getElementById('processingArticles').appendChild(li);
+        });
+    </script>
 </body>
 </html>

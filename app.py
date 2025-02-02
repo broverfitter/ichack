@@ -30,7 +30,7 @@ def recursive_search(query, depth, max_depth=3):
 
     for result in results:
         url = result['url']
-        claude = Claude()
+        claude = Claude(socketio)
         text = claude.url_to_info(url)
         hypotheses = claude.claude_summarize(text[:10000])
 
@@ -77,11 +77,16 @@ def search_view():
 def claude_view():
     data = request.get_json()
     url = data.get('url')
-    claude = Claude()
+    claude = Claude(socketio)
     original_text = claude.url_to_info(url)
     articles = recursive_search(url, 1)
     linked_summary = claude.link_articles(original_text[:10000], articles)
     return jsonify({'summary': linked_summary})
 
-if __name__ == '__main__':
-    socketio.run(app, debug=True)
+@app.route('/process_article', methods=['POST'])
+def process_article_view():
+    data = request.get_json()
+    url = data.get('url')
+    claude = Claude()
+    claude.recurse(None, url, 0)
+    return jsonify({'status': 'processing started'})

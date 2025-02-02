@@ -9,7 +9,7 @@ from anytree import Node
 from googlesearch import search
 from firecrawl import FirecrawlApp
 
-from app import socketio
+
 from scrape import crawl
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
@@ -21,7 +21,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 
 class Claude:
-    def __init__(self):
+    def __init__(self, socketio):
         self.socketio = socketio
         self.anthropic = Anthropic(
             api_key="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"
@@ -121,34 +121,37 @@ class Claude:
             if any(keyword in url for keyword in ['article', 'news', 'blog', 'post']):
                 search_results.append(url)
         return search_results
-    
+
     def recurse(self, parent, url, depth, max_depth=3):
+        logging.info(f"Processing URL: {url} at depth: {depth}")
+        self.socketio.emit('processing_article', {'url': url})
         if depth >= max_depth:
             return
 
         text = self.url_to_info(url)
         if text is None:
+            logging.info("No text found for URL")
             return
         summary, hypotheses = self.claude_summarize(text[:2000])
         results = []
         for hypothesis in hypotheses:
             search_results = self.search_results(hypothesis, max_results=2)
             for url in search_results:
+                logging.info(f"Searching article URL: {url}")
+                self.socketio.emit('processing_article', {'url': url})
                 info = self.url_to_info(url)
                 if info is None:
                     continue
-                #rating = self.claude_closeness(summary, info)
-                #dictionary[url] = rating
                 results.append((url, info))
                 if len(results) == 3:
                     break
 
-        top3 = results
-        #top3 = sorted(dictionary.items(), key=lambda item: item[1])[::-1][:3]
+        top3 = results[:3]  # Ensure top3 has at most 3 elements
+        if not top3:
+            return
 
-        for i in range(0, randint(1, 3)):
-            self.recurse(Node(top3[i], parent=parent), top3[i][0], depth+1)
-
+        for i in range(len(top3)):
+            self.recurse(Node(top3[i], parent=parent), top3[i][0], depth + 1)
 
     def main(self, url):
         root = Node(url)
