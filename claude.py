@@ -9,7 +9,6 @@ from anytree import Node
 from googlesearch import search
 from firecrawl import FirecrawlApp
 
-from app import socketio
 from scrape import crawl
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
@@ -159,12 +158,3 @@ class Claude:
 
     def link_articles(self, param, articles):
         pass
-
-
-# c = Claude()
-# t = time.time()
-# root = c.main("https://arxiv.org/pdf/1706.03762")
-# print(time.time() - t)
-# '''text = c.url_to_info("https://arxiv.org/pdf/1706.03762")
-# summary = c.claude_summarize(text[:10000])
-# print(c.claude_closeness(summary, """Mathematical reasoning poses a significant challenge for language models due to its complex and structured nature. In this paper, we introduce DeepSeekMath 7B, which continues pre-training DeepSeek-Coder-Base-v1.5 7B with 120B math-related tokens sourced from Common Crawl, together with natural language and code data. DeepSeekMath 7B has achieved an impressive score of 51.7% on the competition-level MATH benchmark without relying on external toolkits and voting techniques, approaching the performance level of Gemini-Ultra and GPT-4. Self-consistency over 64 samples from DeepSeekMath 7B achieves 60.9% on MATH. The mathematical reasoning capability of DeepSeekMath is attributed to two key factors: First, we harness the significant potential of publicly available web data through a meticulously engineered data selection pipeline. Second, we introduce Group Relative Policy Optimization (GRPO), a variant of Proximal Policy Optimization (PPO), that enhances mathematical reasoning abilities while concurrently optimizing the memory usage of PPO."""))'''

@@ -1,32 +1,20 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trace - News Explorer</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trace - News Explorer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>trace</h1>
-
-        <!-- Search Bar -->
-        <div class="search-container">
-            <form id="searchForm" onsubmit="return false;">
-                <input type="text" name="query" id="searchInput" placeholder="Enter article URL..." class="search-bar">
-            </form>
-        </div>
-
-        <!-- Search Results -->
-        <div id="resultsContainer"></div>
-
-        <!-- Preview Container -->
-        <div id="previewContainer" class="preview-container"></div>
-
-        <!-- Summary Container -->
-        <div id="summaryContainer"></div>
-    </div>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <div class="container">
+    <h1>Trace - News Explorer</h1>
+    <!-- Minimal search bar placeholder -->
+    <form id="searchForm" onsubmit="return false;">
+        <input type="text" id="searchInput" value="The effect of deepseek on LLMs">
+    </form>
+    <div id="resultsContainer"></div>
+  </div>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
