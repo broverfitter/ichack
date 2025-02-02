@@ -7,9 +7,10 @@ import ast
 
 
 class Claude:
-    def _init_(self):
+    def __init__(self):
         self.anthropic = Anthropic(
-            api_key="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")
+            api_key="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"
+        )
 
     def url_to_info(self, url):
         response = requests.get(url)
@@ -41,7 +42,7 @@ class Claude:
             system="""
                 Summarize the text emphasizing clues of its historical and causal antecedents to aid in discovering prior related articles, papers, or posts.
                 Write this analysis explicity then a delimiter then formulate 3 hypotheses of search queries that should yield relevant predecessors
-                in the format analysis !!! [hypothesis1, hypothesis2, hypothesis3]
+                in the format: analysis !!! [hypothesis1, hypothesis2, hypothesis3] do not put anything after the closing square bracket
             """,
             messages=[
                 {
@@ -58,7 +59,10 @@ class Claude:
 
         text = message.content[0].text
         hypotheses = text.split("!!!")[1].strip()
+        hypotheses = ast.literal_eval(hypotheses)
         return hypotheses
+    
+
 
 
 c = Claude()
