@@ -33,7 +33,7 @@ async function searchArticle(query) {
             articleButton.innerHTML = `
                 <div class="button-text">${result.url}</div>
                 <div class="preview-container">
-                    <iframe src="https://api.allorigins.win/raw?url=${encodeURIComponent(result.url)}"" 
+                    <iframe src="https://api.allorigins.win/raw?url=${encodeURIComponent(result.url)}" 
                             frameborder="0" 
                             class="preview-iframe"
                             sandbox="allow-same-origin allow-scripts"
@@ -58,6 +58,10 @@ async function searchArticle(query) {
             });
             articleButton.querySelector('.preview-iframe').style.heigth = '0px';
             resultsContainer.appendChild(articleButton);
+
+            articleButton.addEventListener('click', () => {
+                window.location.href = '/click?url=' + encodeURIComponent(result.url);
+            });
 
             setTimeout(() => {
                 articleButton.classList.add('visible');

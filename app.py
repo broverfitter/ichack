@@ -28,6 +28,11 @@ def search_view():
     print(results)
     return jsonify({'results': results})
 
+@app.route('/click')
+def click_view():
+    url = request.args.get('url')
+    return render_template("click/index.html", url=url)
+    
 
 if __name__ == '__main__':
     app.run(debug=True)
