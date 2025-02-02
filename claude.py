@@ -9,6 +9,7 @@ from googlesearch import search
 from firecrawl import FirecrawlApp
 from scrape import crawl
 import time
+from random import randint
 
 
 class Claude:
@@ -112,7 +113,7 @@ class Claude:
                 search_results.append(url)
         return search_results
     
-    def recurse(self, parent, url, depth, max_depth=1):
+    def recurse(self, parent, url, depth, max_depth=3):
         if depth >= max_depth:
             return
         
@@ -136,9 +137,8 @@ class Claude:
         top3 = results
         #top3 = sorted(dictionary.items(), key=lambda item: item[1])[::-1][:3]
         
-        self.recurse(Node(top3[0], parent=parent), top3[0][0], depth+1)
-        self.recurse(Node(top3[1], parent=parent), top3[1][0], depth+1)
-        self.recurse(Node(top3[2], parent=parent), top3[2][0], depth+1)
+        for i in range(0, randint(1, 3)):
+            self.recurse(Node(top3[i], parent=parent), top3[i][0], depth+1)
 
 
     def main(self, url):
