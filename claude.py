@@ -9,10 +9,6 @@ from anytree import Node
 from googlesearch import search
 from firecrawl import FirecrawlApp
 
-<<<<<<< HEAD
-=======
-
->>>>>>> ce6fed970c798c1d852ed4ed07650219d9b0dcde
 from scrape import crawl
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
@@ -22,10 +18,14 @@ import logging
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+class MockSocketIO:
+    def emit(self, event, data):
+        print(f"Emitting event '{event}' with data: {data}")
 
 class Claude:
-    def __init__(self, socketio):
-        self.socketio = socketio
+    def __init__(self):
+        self.articles = []
+        self.socketio = MockSocketIO()
         self.anthropic = Anthropic(
             api_key="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"
         )
@@ -38,14 +38,27 @@ class Claude:
     def url_to_info(self, url):
         try:
             response = requests.get(url)
-            #print(url, response.status_code)
-        except:
+            logging.info(f"URL: {url}, Status Code: {response.status_code}")
+        except Exception as e:
+            logging.error(f"Error fetching URL: {url}, Exception: {e}")
             return None
-        
+
         if response.status_code != 200:
+            logging.warning(f"Non-200 status code for URL: {url}")
             return None
 
         content_type = response.headers.get("Content-Type", "").lower()
+        logging.info(f"Content-Type for URL: {url} is {content_type}")
+
+        if "github.com" in url and "raw" not in url:
+            # Convert GitHub URL to raw content URL
+            url = url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/")
+            response = requests.get(url)
+            if response.status_code != 200:
+                logging.warning(f"Non-200 status code for raw GitHub URL: {url}")
+                return None
+            return response.text
+
         if "pdf" in content_type:
             # Process PDF content
             pdf_file = io.BytesIO(response.content)
@@ -60,7 +73,9 @@ class Claude:
             soup = BeautifulSoup(response.content, 'html.parser')
             for element in soup(["script", "style"]):
                 element.decompose()
-            return soup.get_text(separator=" ", strip=True)
+            text = soup.get_text(separator=" ", strip=True)
+            logging.info(f"Extracted text length for URL: {url} is {len(text)}")
+            return text if text else None
 
     def claude_summarize(self, text):
         message = self.anthropic.messages.create(
@@ -70,7 +85,7 @@ class Claude:
             system="""
                 Summarize the text emphasizing clues of its historical and causal antecedents to aid in discovering prior related articles, papers, or posts.
                 Write this analysis explicity then a delimiter then formulate 3 hypotheses of search queries that should yield relevant predecessors
-                in the format: analysis !!! [hypothesis1, hypothesis2, hypothesis3] do not put anything after the closing square bracket
+                in the format: analysis !!! [hypothesis1, hypothesis2, hypothesis3] do not put anything after the closing square bracket. You must add !!! no matter what.
             """,
             messages=[
                 {
@@ -86,32 +101,12 @@ class Claude:
         )
 
         text = message.content[0].text
+        self.socketio.emit('Analysed Article: ', text)
+        print(text)
         summary, hypotheses = text.split("!!!")
         hypotheses = ast.literal_eval(hypotheses.strip())
         return summary, hypotheses
-    
-    def claude_closeness(self, summary, proposal):
-        message = self.anthropic.messages.create(
-            model="claude-3-5-haiku-20241022",
-            max_tokens=500,
-            temperature=0,
-            system="""You will be given two texts. The first text is a summary of an idea, while the second is a proposed text to be evaluated as its potential causal predecessor. Your task is to assess whether the proposed text can be seen as a causal predecessor of the idea summarized. Provide a clear reasoning explanation for your evaluation. At the very end of your response, output a two-digit similarity rating (00 to 99) with no additional text following it.""",
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": f"Summary:\n{summary}\nProposed text:\n{proposal[:1000]}"
-                        }
-                    ]
-                }
-            ]
-        )
 
-        text = message.content[0].text
-        rating = int(text[-2:])
-        return rating
 
     def search_results(self, hypothesis, max_results=5):
     # Perform a Google search and get the top 5 results
@@ -129,6 +124,7 @@ class Claude:
         logging.info(f"Processing URL: {url} at depth: {depth}")
         self.socketio.emit('processing_article', {'url': url})
         if depth >= max_depth:
+            self.articles.append(url)
             return
 
         text = self.url_to_info(url)
@@ -158,10 +154,48 @@ class Claude:
 
     def main(self, url):
         root = Node(url)
-
         self.recurse(root, url, 0)
-        
-        return root
+        output = self.link_articles(root,self.articles)
+        print(output)
+        return root, output
 
-    def link_articles(self, param, articles):
-        pass
+    def link_articles(self, root, articles):
+        root_content = self.url_to_info(root.name)
+        if root_content is None:
+            logging.warning("No content found for the root article")
+            return None
+
+        # Collect content of all previous articles
+        articles_content = []
+        for article in articles:
+            content = self.url_to_info(article)
+            if content:
+                articles_content.append(content)
+
+        # Concatenate all content
+        all_content = root_content + "\n\n" + "\n\n".join(articles_content)
+
+        message = self.anthropic.messages.create(
+            model="claude-3-5-haiku-20241022",
+            max_tokens=1000,
+            temperature=0,
+            system="""
+                        Can you link all the first article to all the following articles. Generate a short summary.
+                    """,
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": all_content
+                        }
+                    ]
+                }
+            ]
+        )
+
+        return message.content[0].text
+
+# c = Claude()
+# c.main('https://arxiv.org/abs/1706.03762')
