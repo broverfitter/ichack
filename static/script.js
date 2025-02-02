@@ -10,7 +10,7 @@ function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function searchArticle(query) {
+async function searchArticle(query) {
     fetch('/search', {
         method: 'POST',
         headers: {
@@ -18,6 +18,7 @@ function searchArticle(query) {
         },
         body: JSON.stringify({ query: query })
     })
+    .then(await delay(500))
     .then(response => response.json())
     .then(data => {
         // Clear previous results
@@ -32,33 +33,35 @@ function searchArticle(query) {
             articleButton.innerHTML = `
                 <div class="button-text">${result.url}</div>
                 <div class="preview-container">
-                    <iframe src="${result.url}" 
+                    <iframe src="https://api.allorigins.win/raw?url=${encodeURIComponent(result.url)}"" 
                             frameborder="0" 
-                            class="preview-iframe">
+                            class="preview-iframe"
+                            sandbox="allow-same-origin allow-scripts"
                     </iframe>
                 </div>
             `;
 
             articleButton.addEventListener('mouseenter', (e) => {
                 const previewIframe = articleButton.querySelector('.preview-iframe');
-                previewIframe.style.display = 'block';
+                previewIframe.style.transitionDelay = "0s"
                 previewIframe.style.height = '400px'
                 e.preventDefault();
             });
             articleButton.addEventListener('mouseleave', () => {
                 const previewIframe = articleButton.querySelector('.preview-iframe');
                 previewIframe.style.height = '0px';
+                previewIframe.style.transitionDelay = "1s"
             });
             articleButton.addEventListener('click', () => {
                 showLoadingMessage(result.url);
                 hidePreview();
             });
-            articleButton.querySelector('.preview-iframe').style.display = 'none';
+            articleButton.querySelector('.preview-iframe').style.heigth = '0px';
             resultsContainer.appendChild(articleButton);
 
             setTimeout(() => {
                 articleButton.classList.add('visible');
-            }, index * 200);
+            }, index * 300);
         });
     })
     .catch(error => {
