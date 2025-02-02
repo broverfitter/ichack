@@ -27,7 +27,7 @@ class Claude:
         self.articles = []
         self.socketio = socketio
         self.anthropic = Anthropic(
-            api_key="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"
+            api_key="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"
         )
         self.crawl = crawl()
 
