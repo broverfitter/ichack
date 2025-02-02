@@ -51,6 +51,12 @@
             terminal.innerHTML += message + '\n';
             terminal.scrollTop = terminal.scrollHeight; // Auto-scroll to the bottom
         }
+        function createNewBox(message) {
+        const newBox = document.createElement('div');
+        newBox.className = 'new-box';
+        newBox.textContent = message;
+        document.body.appendChild(newBox);
+    }
     </script>
 </body>
 </html>

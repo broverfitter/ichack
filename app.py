@@ -9,6 +9,8 @@ import threading
 def run_claude(socketio, url):
     c = Claude(socketio)
     root,output = c.main(url)
+    socketio.emit('update_root', {'root': str(root), 'output': output})
+
 
 app = Flask(__name__)
 socketio = SocketIO(app)

@@ -85,7 +85,7 @@ class Claude:
             system="""
                 Summarize the text emphasizing clues of its historical and causal antecedents to aid in discovering prior related articles, papers, or posts.
                 Write this analysis explicity then a delimiter then formulate 3 hypotheses of search queries that should yield relevant predecessors
-                in the format: analysis !!! [hypothesis1, hypothesis2, hypothesis3] do not put anything after the closing square bracket. You must add !!! no matter what.
+                in the format: analysis !!! [hypothesis1, hypothesis2, hypothesis3] do not put anything after the closing square bracket. You must add !!! no matter what. If there is insufficient data make up three hypotheses just from the url name
             """,
             messages=[
                 {
