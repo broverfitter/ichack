@@ -1,8 +1,12 @@
 from flask import Flask, render_template, request, jsonify
+from flask_socketio import SocketIO, emit
 from googlesearch import search
 import requests
 from bs4 import BeautifulSoup
 from claude import Claude  # Import the Claude class
+
+app = Flask(__name__)
+socketio = SocketIO(app)
 
 def get_description(url):
     try:
@@ -37,8 +41,6 @@ def recursive_search(query, depth, max_depth=3):
 
     return all_articles
 
-app = Flask(__name__)
-
 @app.route('/')
 def home():
     sample_article = {
@@ -51,7 +53,7 @@ def home():
 def mock_search(query):
     # Perform a Google search and get the top 5 results
     search_results = []
-    for url in search(query, num_results=50):
+    for url in search(query, num_results=20):
         if len(search_results) == 5:
             break
         # Check if the URL is like an article
@@ -61,6 +63,7 @@ def mock_search(query):
                 'url': url,
                 'sources': ['Google']
             })
+            socketio.emit('article_searched', {'url': url})  # Emit event when an article is searched
     return search_results
 
 @app.route('/search', methods=['POST'])
@@ -81,4 +84,4 @@ def claude_view():
     return jsonify({'summary': linked_summary})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app, debug=True)
