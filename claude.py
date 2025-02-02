@@ -6,6 +6,9 @@ import PyPDF2
 import ast
 from anytree import Node
 from googlesearch import search
+from firecrawl import FirecrawlApp
+from scrape import crawl
+import time
 
 
 class Claude:
@@ -13,12 +16,20 @@ class Claude:
         self.anthropic = Anthropic(
             api_key="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"
         )
+        self.crawl = crawl()
+
+    def url_to_info_pls(self, url):
+        print(url)
+        return self.crawl.crawl_url(url)
 
     def url_to_info(self, url):
         try:
             response = requests.get(url)
-            print(url, response)
+            #print(url, response.status_code)
         except:
+            return None
+        
+        if response.status_code != 200:
             return None
 
         content_type = response.headers.get("Content-Type", "").lower()
@@ -78,7 +89,7 @@ class Claude:
                     "content": [
                         {
                             "type": "text",
-                            "text": f"Summary:\n{summary}\nProposed text:\n{proposal[:100]}"
+                            "text": f"Summary:\n{summary}\nProposed text:\n{proposal[:1000]}"
                         }
                     ]
                 }
@@ -87,42 +98,47 @@ class Claude:
 
         text = message.content[0].text
         rating = int(text[-2:])
+        return rating
 
-    def search_results(self, hypothesis):
+    def search_results(self, hypothesis, max_results=5):
     # Perform a Google search and get the top 5 results
         search_results = []
         for url in search(hypothesis, num_results=20):
-            if len(search_results) == 5:
+            
+            if len(search_results) == max_results:
                 break
             # Check if the URL is like an article
             if any(keyword in url for keyword in ['article', 'news', 'blog', 'post']):
                 search_results.append(url)
         return search_results
     
-    def recurse(self, parent, url, depth, max_depth=3):
-        print(url, depth)
+    def recurse(self, parent, url, depth, max_depth=1):
         if depth >= max_depth:
             return
         
         text = self.url_to_info(url)
         if text is None:
-            print("here")
             return
-        summary, hypotheses = self.claude_summarize(text[:200])
-        search_results = self.search_results(hypotheses)
-        dictionary = {}
-        for url in search_results:
-            info = self.url_to_info(url)
-            if info is None:
-                return
-            rating = self.claude_closeness(summary, info)
-            dictionary[url] = rating
+        summary, hypotheses = self.claude_summarize(text[:2000])
+        results = []
+        for hypothesis in hypotheses:
+            search_results = self.search_results(hypothesis, max_results=2)
+            for url in search_results:
+                info = self.url_to_info(url)
+                if info is None:
+                    continue
+                #rating = self.claude_closeness(summary, info)
+                #dictionary[url] = rating
+                results.append((url, info))
+                if len(results) == 3:
+                    break
 
-        top3 = sorted(dictionary.items(), key=lambda item: item[0])[:3]
+        top3 = results
+        #top3 = sorted(dictionary.items(), key=lambda item: item[1])[::-1][:3]
         
-        self.recurse(Node(top3[0], parent=parent), top3[0], depth+1)
-        self.recurse(Node(top3[1], parent=parent), top3[1], depth+1)
-        self.recurse(Node(top3[2], parent=parent), top3[2], depth+1)
+        self.recurse(Node(top3[0], parent=parent), top3[0][0], depth+1)
+        self.recurse(Node(top3[1], parent=parent), top3[1][0], depth+1)
+        self.recurse(Node(top3[2], parent=parent), top3[2][0], depth+1)
 
 
     def main(self, url):
@@ -134,7 +150,10 @@ class Claude:
 
 
 
-'''c = Claude()
-text = c.url_to_info("https://arxiv.org/pdf/1706.03762")
+c = Claude()
+t = time.time()
+root = c.main("https://arxiv.org/pdf/1706.03762")
+print(time.time() - t)
+'''text = c.url_to_info("https://arxiv.org/pdf/1706.03762")
 summary = c.claude_summarize(text[:10000])
 print(c.claude_closeness(summary, """Mathematical reasoning poses a significant challenge for language models due to its complex and structured nature. In this paper, we introduce DeepSeekMath 7B, which continues pre-training DeepSeek-Coder-Base-v1.5 7B with 120B math-related tokens sourced from Common Crawl, together with natural language and code data. DeepSeekMath 7B has achieved an impressive score of 51.7% on the competition-level MATH benchmark without relying on external toolkits and voting techniques, approaching the performance level of Gemini-Ultra and GPT-4. Self-consistency over 64 samples from DeepSeekMath 7B achieves 60.9% on MATH. The mathematical reasoning capability of DeepSeekMath is attributed to two key factors: First, we harness the significant potential of publicly available web data through a meticulously engineered data selection pipeline. Second, we introduce Group Relative Policy Optimization (GRPO), a variant of Proximal Policy Optimization (PPO), that enhances mathematical reasoning abilities while concurrently optimizing the memory usage of PPO."""))'''
