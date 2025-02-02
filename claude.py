@@ -2,12 +2,14 @@ from anthropic import Anthropic
 import requests
 from bs4 import BeautifulSoup
 import io
+import logging
 import PyPDF2
 import ast
 from anytree import Node
 from googlesearch import search
 from firecrawl import FirecrawlApp
 from scrape import crawl
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
 from random import randint
 
@@ -148,6 +150,8 @@ class Claude:
         
         return root
 
+    def link_articles(self, param, articles):
+        pass
 
 
 c = Claude()

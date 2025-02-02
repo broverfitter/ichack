@@ -27,6 +27,7 @@ function searchArticle(query) {
             articleButton.innerText = result.title;
             articleButton.addEventListener('click', () => {
                 showLoadingMessage(result.url);
+                handleClaudeSummary(result.url);
                 hidePreview();
             });
             articleButton.addEventListener('contextmenu', (e) => {
@@ -65,4 +66,22 @@ function hidePreview() {
     const previewContainer = document.getElementById('previewContainer');
     previewContainer.style.display = 'none';
     previewContainer.innerHTML = '';
+}
+
+function handleClaudeSummary(url) {
+    fetch('/claude', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: url })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const summaryContainer = document.getElementById('summaryContainer');
+        summaryContainer.innerHTML = `<p>${data.summary}</p>`;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
 }
